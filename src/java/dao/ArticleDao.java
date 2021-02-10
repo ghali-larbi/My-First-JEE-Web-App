@@ -3,53 +3,37 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package dao;
 
+import connexion.connexion;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import model.Article;
 
 /**
  *
  * @author DELL
  */
-public class ArticleDao {
-     private String jdbcURL = "jdbc:mysql://localhost:3306/article?useSSL=false";
-	private String jdbcUsername = "root";
-	private String jdbcPassword = "";
-
-	private static final String INSERT_ARTICLE_SQL = "INSERT INTO article" + "(name) VALUES (?)";
+public class ArticleDao implements ArticleInterface{
+         connexion conx=new connexion();
+    private static final String INSERT_ARTICLE_SQL = "insert into article(name) VALUES (?)";
 	private static final String SELECT_ARTICLE_BY_ID = "select id,name from article where id =?";
 	private static final String SELECT_ALL_ARTICLE = "select * from article";
 	private static final String DELETE_ARTICLE_SQL = "delete from article where id = ?;";
 	private static final String UPDATE_ARTICLE_SQL = "update article set name = ? where id = ?;";
         
-        protected Connection getConnection() {
-		Connection connection = null;
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return connection;
-	}
-//insert article
-        public void insertArticle(Article article) throws SQLException {
-		System.out.println(INSERT_ARTICLE_SQL);
-		// try-with-resource statement will auto close the connection.
-		try (Connection connection = getConnection();
-				PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ARTICLE_SQL)) {
+         
+         public void insertArticle(Article article)  {
+		
+		try (Connection connection = conx.getConnection();
+		        PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ARTICLE_SQL)) {
 			preparedStatement.setString(1, article.getName());
-
 			System.out.println(preparedStatement);
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
@@ -58,14 +42,17 @@ public class ArticleDao {
 	}
         
 //update article
-        public boolean updateArticle(Article article) throws SQLException {
-		boolean rowUpdated;
-		try (Connection connection = getConnection();
+         
+        public boolean updateArticle(Article article) {
+		boolean rowUpdated = false;
+		try (Connection connection = conx.getConnection();
 				PreparedStatement statement = connection.prepareStatement(UPDATE_ARTICLE_SQL);) {
 			        statement.setString(1, article.getName());
                                 statement.setInt(2, article.getId());
 			        rowUpdated = statement.executeUpdate() > 0;
-		}
+		} catch (SQLException ex) {
+                 Logger.getLogger(ArticleDao.class.getName()).log(Level.SEVERE, null, ex);
+             }
 		return rowUpdated;
 	}
                 
@@ -73,7 +60,7 @@ public class ArticleDao {
         public Article selectArticle(int id) {
 		Article article = null;
 		// Step 1: Establishing a Connection
-		try (Connection connection = getConnection();
+		try (Connection connection = conx.getConnection();
 				// Step 2:Create a statement using connection object
 				PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ARTICLE_BY_ID);) {
 			preparedStatement.setInt(1, id);
@@ -96,7 +83,7 @@ public class ArticleDao {
 		// using try-with-resources to avoid closing resources (boiler plate code)
 		List<Article> articles = new ArrayList<>();
 		// Step 1: Establishing a Connection
-		try (Connection connection = getConnection();
+		try (Connection connection = conx.getConnection();
 
 				// Step 2:Create a statement using connection object
 			PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_ARTICLE);) {
@@ -114,18 +101,19 @@ public class ArticleDao {
 		}
 		return articles;
 	}
-        public boolean deleteArticle(int id) throws SQLException {
-		boolean rowDeleted;
-		try (Connection connection = getConnection();
+        public boolean deleteArticle(int id) {
+		boolean rowDeleted = false;
+		try (Connection connection = conx.getConnection();
 				PreparedStatement statement = connection.prepareStatement(DELETE_ARTICLE_SQL);) {
 			statement.setInt(1, id);
 			rowDeleted = statement.executeUpdate() > 0;
-		}
+		} catch (SQLException ex) {
+                 Logger.getLogger(ArticleDao.class.getName()).log(Level.SEVERE, null, ex);
+             }
 		return rowDeleted;
 	}
 
     private void printSQLException(SQLException e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 }

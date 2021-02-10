@@ -6,6 +6,7 @@
 package servlet;
 
 import static com.sun.corba.se.impl.util.Utility.printStackTrace;
+import dao.ArticleDao;
 import java.io.IOException;
 import java.io.PrintWriter;
 import static java.lang.System.out;
@@ -19,6 +20,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import model.Article;
 
 /**
  *
@@ -98,7 +100,7 @@ public class testServlet extends HttpServlet {
   private void listArticle(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ServletException {
 		List<Article> listArticle = articledao.selectAllArticles();
-		  request.setAttribute("listArticle", listArticle);
+		request.setAttribute("listArticle", listArticle);
 		RequestDispatcher dispatcher = request.getRequestDispatcher("listeArticle.jsp");
 		dispatcher.forward(request, response);
                
@@ -112,6 +114,7 @@ public class testServlet extends HttpServlet {
 		throws SQLException, IOException {
 		String name = request.getParameter("name");
 		Article newArticle= new Article(name);
+                System.out.println(newArticle.getName());
 	        articledao.insertArticle(newArticle);
 		response.sendRedirect("listeArticle");
 	}

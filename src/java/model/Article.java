@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package servlet;
+package model;
 
 /**
  *
  * @author DELL
  */
 public class Article {
-      private int id;
+     private int id;
     private String name;
     public Article(int id,String name){
         this.id=id;
